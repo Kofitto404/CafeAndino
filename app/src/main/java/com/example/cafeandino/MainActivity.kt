@@ -10,13 +10,15 @@ import androidx.navigation.compose.rememberNavController
 import com.example.cafeandino.ui.navigation.AppNavHost
 import com.example.cafeandino.ui.theme.CafeAndinoTheme
 import com.example.cafeandino.viewmodel.CartViewModel
+import com.example.cafeandino.viewmodel.CheckoutViewModel
 import com.example.cafeandino.viewmodel.HomeViewModel
-// LLEGU HASTA EL PUNTO 6
 
 class MainActivity : ComponentActivity() {
 
+    // Cada ViewModel se crea una sola vez y sobrevive al giro de pantalla
     private val homeViewModel: HomeViewModel by viewModels()
     private val cartViewModel: CartViewModel by viewModels()
+    private val checkoutViewModel: CheckoutViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +29,8 @@ class MainActivity : ComponentActivity() {
                 AppNavHost(
                     navController = navController,
                     homeViewModel = homeViewModel,
-                    cartViewModel = cartViewModel
+                    cartViewModel = cartViewModel,
+                    checkoutViewModel = checkoutViewModel
                 )
             }
         }

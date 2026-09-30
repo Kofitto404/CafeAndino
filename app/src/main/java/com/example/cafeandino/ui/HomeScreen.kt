@@ -26,16 +26,22 @@ import com.example.cafeandino.viewmodel.HomeViewModel
 fun HomeScreen(
     homeViewModel: HomeViewModel,
     cartViewModel: CartViewModel,
-    onProductClick: (Int) -> Unit
+    onProductClick: (Int) -> Unit,
+    onCartClick: () -> Unit,
+    onCheckoutClick: () -> Unit
 ) {
     val menuItems by homeViewModel.menuItems.collectAsState()
     val orderCount by cartViewModel.orderCount.collectAsState()
+    val lastCustomerName by cartViewModel.lastCustomerName.collectAsState()
 
     HomeScreenContent(
         menuItems = menuItems,
         orderCount = orderCount,
-        onAdd = { cartViewModel.addOrder() },
-        onProductClick = onProductClick
+        lastCustomerName = lastCustomerName,
+        onAdd = { menuItem -> cartViewModel.addItem(menuItem) },
+        onProductClick = onProductClick,
+        onCartClick = onCartClick,
+        onCheckoutClick = onCheckoutClick
     )
 }
 
@@ -44,8 +50,11 @@ fun HomeScreen(
 fun HomeScreenContent(
     menuItems: List<MenuItem>,
     orderCount: Int,
-    onAdd: () -> Unit,
-    onProductClick: (Int) -> Unit
+    lastCustomerName: String?,
+    onAdd: (MenuItem) -> Unit,
+    onProductClick: (Int) -> Unit,
+    onCartClick: () -> Unit,
+    onCheckoutClick: () -> Unit
 ) {
     Scaffold(
         topBar = { TopAppBar(title = { Text("Café Andino") }) }
@@ -62,11 +71,37 @@ fun HomeScreenContent(
                 fontWeight = FontWeight.Bold
             )
 
+            if (lastCustomerName != null) {
+                Text(
+                    text = "Último pedido confirmado a nombre de $lastCustomerName",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onCartClick,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Ver carrito")
+                }
+                Button(
+                    onClick = onCheckoutClick,
+                    enabled = orderCount > 0,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Confirmar pedido")
+                }
+            }
+
             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(menuItems) { item ->
                     MenuItemCard(
                         item = item,
-                        onAdd = onAdd,
+                        onAdd = { onAdd(item) },
                         onClick = { onProductClick(item.id) }
                     )
                 }
@@ -84,7 +119,7 @@ fun MenuItemCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }            // toda la fila es tocable
+            .clickable { onClick() }
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -117,8 +152,11 @@ fun HomeScreenPreview() {
             MenuItem(1, "Café Americano", "Café negro suave, 250ml", 1800, R.drawable.logo),
             MenuItem(2, "Cappuccino", "Espresso con leche vaporizada", 2200, R.drawable.logo)
         ),
-        orderCount = 0,
+        orderCount = 2,
+        lastCustomerName = null,
         onAdd = {},
-        onProductClick = {}
+        onProductClick = {},
+        onCartClick = {},
+        onCheckoutClick = {}
     )
 }
